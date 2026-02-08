@@ -104,7 +104,14 @@ CommandExecutor::Result CommandExecutor::execute(const std::string& command) {
         close(pipefd[1]);
         
         // Execute command through shell to support built-ins like cd
-        execl("/bin/sh", "sh", "-c", trimmed.c_str(), nullptr);
+                // Execute command directly to prevent injection
+        std::vector<char*> argv;
+        for (auto& token : tokens) {
+            argv.push_back((char*)token.c_str());
+        }
+        argv.push_back(nullptr);
+
+        execvp(argv[0], argv.data());
         
         // If execl returns, it failed
         std::cerr << "Error: execl failed: " << strerror(errno) << std::endl;

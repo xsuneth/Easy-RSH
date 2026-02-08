@@ -1,6 +1,6 @@
 # Compiler and flags
 CXX = g++
-CXXFLAGS = -std=c++17 -Wall -Wextra -Wpedantic -Iinclude
+CXXFLAGS = -std=c++17 -Wall -Wextra -Wpedantic -Iinclude -I/usr/include
 LDFLAGS = -lpthread -lssl -lcrypto
 
 # Debug vs Release build
