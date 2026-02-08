@@ -107,6 +107,15 @@ void Server::handleClientEcho(Socket& client_socket) {
     }
     
     while (true) {
+        // Validate session token on every command
+        if (!auth_->validateToken(auth_token)) {
+            client_socket.send("AUTH_FAILED Session expired or invalid\n", 40, 0);
+            return;
+        }
+        
+        // Update session activity
+        auth_->updateActivity(auth_token);
+        
        
         std::memset(buffer, 0, BUFFER_SIZE);  // Clear buffer
         // Receive data from client
@@ -198,6 +207,15 @@ void Server::handleClientCommand(Socket& client_socket) {
     }
     
     while (true) {
+        // Validate session token on every command
+        if (!auth_->validateToken(auth_token)) {
+            client_socket.send("AUTH_FAILED Session expired or invalid\n", 40, 0);
+            return;
+        }
+        
+        // Update session activity
+        auth_->updateActivity(auth_token);
+        
         // Clear buffer
         std::memset(buffer, 0, BUFFER_SIZE);
         
