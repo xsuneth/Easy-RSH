@@ -7,8 +7,8 @@
 constexpr size_t BUFFER_SIZE = 4096;
 
 
-Client::Client(const std::string& host, int port)
-    : server_host_(host), server_port_(port), connected_(false) {
+Client::Client(const std::stringClient::Client(const std::string& host, int port) host, int port) : use_tls_(false)
+    : server_host_(host), server_port_(port), connected_(false), use_tls_(false) {
 }
 
 // Connect to server
@@ -17,9 +17,20 @@ bool Client::connect() {
         std::cout << Color::GRAY << "Connecting to " << server_host_ << ":" << server_port_ << "..." << Color::RESET << std::endl;
         
         // Create socket
+        
+        // Enable TLS if configured
+        if (use_tls_) {
+            socket_.enableTLS(false);  // Client mode
+        }
         socket_.create();
         
         // Connect to server
+        
+        // Perform TLS handshake if enabled
+        if (use_tls_) {
+            socket_.handshake();
+            std::cout << Color::GREEN << "🔒 TLS handshake successful" << Color::RESET << std::endl;
+        }
         socket_.connect(server_host_, server_port_);
         
         connected_ = true;
@@ -219,4 +230,10 @@ bool Client::performAuthentication() {
         std::cerr << "Authentication failed: " << response;
         return false;
     }
+}
+
+// Enable TLS for client connections
+void Client::enableTLS() {
+    use_tls_ = true;
+    std::cout << Color::GREEN << "TLS enabled for client connection" << Color::RESET << std::endl;
 }

@@ -4,13 +4,15 @@
 #include <fcntl.h>
 
 // Default constructor
-Socket::Socket() : fd_(-1) {}
+Socket::Socket() : fd_(-1), ctx_(nullptr), ssl_(nullptr), use_tls_(false) {}
 
 // Constructor with existing file descriptor
-Socket::Socket(int fd) : fd_(fd) {}
+Socket::Socket(int fd) : fd_(fd), ctx_(nullptr), ssl_(nullptr), use_tls_(false) {}
 
 // Destructor
 Socket::~Socket() {
+    if (ssl_) SSL_free(ssl_);
+    if (ctx_) SSL_CTX_free(ctx_);
     close();
 }
 
@@ -132,7 +134,12 @@ ssize_t Socket::send(const void* buffer, size_t length, int flags) {
         throw std::runtime_error("Cannot send on invalid socket");
     }
     
-    ssize_t sent = ::send(fd_, buffer, length, flags);
+    ssize_t sent;
+    if (use_tls_ && ssl_) {
+        sent = SSL_write(ssl_, (void*)buffer, length);
+    } else {
+        sent = ::send(fd_, buffer, length, flags);
+    }
     if (sent < 0) {
         throw std::runtime_error(std::string("Failed to send: ") + strerror(errno));
     }
@@ -146,7 +153,12 @@ ssize_t Socket::recv(void* buffer, size_t length, int flags) {
         throw std::runtime_error("Cannot receive on invalid socket");
     }
     
-    ssize_t received = ::recv(fd_, buffer, length, flags);
+    ssize_t received;
+    if (use_tls_ && ssl_) {
+        received = SSL_read(ssl_, buffer, length);
+    } else {
+        received = ::recv(fd_, buffer, length, flags);
+    }
     if (received < 0) {
         throw std::runtime_error(std::string("Failed to receive: ") + strerror(errno));
     }
@@ -185,5 +197,75 @@ void Socket::setNonBlocking(bool nonblocking) {
     
     if (fcntl(fd_, F_SETFL, flags) < 0) {
         throw std::runtime_error(std::string("Failed to set socket flags: ") + strerror(errno));
+    }
+}
+
+// TLS/SSL implementation
+void Socket::enableTLS(bool is_server) {
+    use_tls_ = true;
+    
+    // Initialize OpenSSL
+    SSL_load_error_strings();
+    OpenSSL_add_ssl_algorithms();
+    
+    // Create SSL context
+    const SSL_METHOD* method = is_server ? TLS_server_method() : TLS_client_method();
+    ctx_ = SSL_CTX_new(method);
+    if (!ctx_) {
+        throw std::runtime_error("Failed to create SSL context");
+    }
+    
+    // Set minimum TLS version
+    SSL_CTX_set_min_proto_version(ctx_, TLS1_2_VERSION);
+}
+
+void Socket::loadCertificates(const std::string& cert_file, const std::string& key_file) {
+    if (!ctx_) {
+        throw std::runtime_error("TLS not enabled, call enableTLS first");
+    }
+    
+    // Load certificate
+    if (SSL_CTX_use_certificate_file(ctx_, cert_file.c_str(), SSL_FILETYPE_PEM) <= 0) {
+        throw std::runtime_error("Failed to load certificate file: " + cert_file);
+    }
+    
+    // Load private key
+    if (SSL_CTX_use_PrivateKey_file(ctx_, key_file.c_str(), SSL_FILETYPE_PEM) <= 0) {
+        throw std::runtime_error("Failed to load private key file: " + key_file);
+    }
+    
+    // Verify private key
+    if (!SSL_CTX_check_private_key(ctx_)) {
+        throw std::runtime_error("Private key does not match certificate");
+    }
+}
+
+void Socket::handshake() {
+    if (!ctx_) {
+        throw std::runtime_error("TLS not enabled, call enableTLS first");
+    }
+    
+    // Create SSL object
+    ssl_ = SSL_new(ctx_);
+    if (!ssl_) {
+        throw std::runtime_error("Failed to create SSL object");
+    }
+    
+    // Attach SSL to socket
+    SSL_set_fd(ssl_, fd_);
+    
+    // Perform handshake
+    int result;
+    if (ctx_ && SSL_CTX_get_verify_mode(ctx_) == SSL_VERIFY_PEER) {
+        // Client mode
+        result = SSL_connect(ssl_);
+    } else {
+        // Server mode
+        result = SSL_accept(ssl_);
+    }
+    
+    if (result <= 0) {
+        ERR_print_errors_fp(stderr);
+        throw std::runtime_error("TLS handshake failed");
     }
 }

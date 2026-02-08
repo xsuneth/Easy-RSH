@@ -44,6 +44,8 @@ int main(int argc, char* argv[]) {
         int port_override = -1;
         bool fork_override = false;
         bool command_override = false;
+        bool tls_override = false;
+        std::string cert_file, key_file;
         bool has_overrides = false;
         
         for (int i = 1; i < argc; i++) {
@@ -60,6 +62,19 @@ int main(int argc, char* argv[]) {
                 fork_override = true;
                 has_overrides = true;
             } else if (arg == "-c" || arg == "--command") {
+            } else if (arg == "--tls") {
+                tls_override = true;
+                has_overrides = true;
+            } else if (arg == "--cert") {
+                if (i + 1 < argc) {
+                    cert_file = argv[++i];
+                    has_overrides = true;
+                }
+            } else if (arg == "--key") {
+                if (i + 1 < argc) {
+                    key_file = argv[++i];
+                    has_overrides = true;
+                }
                 command_override = true;
                 has_overrides = true;
             } else if (arg == "-h" || arg == "--help") {
@@ -119,6 +134,15 @@ int main(int argc, char* argv[]) {
             signal(SIGTERM, signalHandler);
             
             // Configure server
+            
+            // Enable TLS if requested
+            if (tls_override) {
+                if (cert_file.empty() || key_file.empty()) {
+                    std::cerr << Color::ROSE << "TLS enabled but certificate/key files not specified" << Color::RESET << std::endl;
+                    return 1;
+                }
+                server.enableTLS(cert_file, key_file);
+            }
             server.setUseFork(use_fork);
             server.setCommandMode(command_mode);
             

@@ -27,7 +27,7 @@ void sigchldHandler(int sig) {
 }
 
 Server::Server(int port) 
-    : port_(port), running_(false), use_fork_(false), 
+    : port_(port), running_(false), use_fork_(false), use_tls_(false), 
       auth_(std::make_shared<Auth>()), require_auth_(true), 
       restart_requested_(false), command_mode_(false) {
     // Initialize with current working directory
@@ -45,6 +45,12 @@ void Server::start() {
     listen_socket_.setReuseAddr(true);
     listen_socket_.bind(port_);
     listen_socket_.listen(5);
+    
+    // Enable TLS if configured
+    if (use_tls_) {
+        listen_socket_.enableTLS(true);  // Server mode
+        listen_socket_.loadCertificates(cert_file_, key_file_);
+    }
     
     // Get network IP
     struct ifaddrs *ifaddr, *ifa;
@@ -332,13 +338,18 @@ void Server::run() {
             // Convert client address to string
             char client_ip[INET_ADDRSTRLEN];
             inet_ntop(AF_INET, &client_addr.sin_addr, client_ip, INET_ADDRSTRLEN);
-            std::cout << Color::THEME << "→ " << Color::RESET << "Connection from " 
+            std::cout << Color::THEME << "→ " << Color::RESET << "Connection from "
                       << Color::THEME << client_ip << ":" << ntohs(client_addr.sin_port) << Color::RESET << std::endl;
-            
-            if (use_fork_) {
-                // Fork to handle client in separate process (Phase 2)
-                pid_t pid = fork();
-                
+            // Perform TLS handshake if enabled
+            // if (use_tls_) {
+            //     try {
+            //         client_socket.handshake();
+            //         std::cout << Color::GREEN << "  🔒 TLS handshake successful" << Color::RESET << std::endl;
+            //     } catch (const std::exception& e) {
+            //         std::cerr << Color::ROSE << "  ❌ TLS handshake failed: " << e.what() << Color::RESET << std::endl;
+            //         continue;
+            //     }
+            // }
                 if (pid < 0) {
                     std::cerr << "Fork failed: " << strerror(errno) << std::endl;
                     // Continue accepting other clients
@@ -366,6 +377,13 @@ void Server::run() {
                     std::cout << Color::GRAY << "Spawned process (PID: " << pid << ")" << Color::RESET << std::endl;
                 }
             } else {
+                // Handle client in main process (Phase 1)
+                if (command_mode_) {
+                    handleClientCommand(client_socket);
+                } else {
+                    handleClientEcho(client_socket);
+                }
+            }
                 // Handle client in main process (Phase 1)
                 if (command_mode_) {
                     handleClientCommand(client_socket);
@@ -491,4 +509,13 @@ std::string Server::authenticateClient(Socket& client_socket) {
     client_socket.send(success_msg.c_str(), success_msg.length(), 0);
     
     return token;
+}
+
+// Enable TLS with certificate files
+void Server::enableTLS(const std::string& cert_file, const std::string& key_file) {
+    use_tls_ = true;
+    cert_file_ = cert_file;
+    key_file_ = key_file;
+    std::cout << Color::GREEN << "TLS enabled - Certificate: " << cert_file 
+              << ", Key: " << key_file << Color::RESET << std::endl;
 }

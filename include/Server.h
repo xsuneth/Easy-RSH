@@ -17,6 +17,9 @@ private:
     bool require_auth_;           // Whether authentication is required
     std::string current_dir_;  // Track current working directory
     bool restart_requested_;      // Flag to request server restart
+    bool use_tls_;               // Whether to use TLS
+    std::string cert_file_;     // TLS certificate file
+    std::string key_file_;      // TLS private key file
 
     
     // Handle single client connection 
@@ -58,6 +61,9 @@ public:
     
     // Check if restart was requested
     bool isRestartRequested() const;
+    
+    // TLS support
+    void enableTLS(const std::string& cert_file, const std::string& key_file);
     
 private:
     bool command_mode_;  // True - execute commands, False - echo

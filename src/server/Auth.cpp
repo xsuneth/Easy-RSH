@@ -1,4 +1,5 @@
 #include "Auth.h"
+#include <crypt.h>
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -57,7 +58,7 @@ void Auth::saveUsers() {
     }
 
     file << "# User authentication file" << std::endl;
-    file << "# Format: username:salt:hash" << std::endl;
+    file << "# Format: username:hash" << std::endl;
     file << "# DO NOT EDIT MANUALLY" << std::endl;
     file << std::endl;
 

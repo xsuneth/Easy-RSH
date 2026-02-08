@@ -21,6 +21,7 @@ int main(int argc, char* argv[]) {
     try {
         
         std::string host = "127.0.0.1";
+        bool use_tls = false;
         int port = 8080;
         
         for (int i = 1; i < argc; i++) {
@@ -35,6 +36,9 @@ int main(int argc, char* argv[]) {
                     port = std::atoi(argv[++i]);
                 }
             } else if (arg == "--help") {
+            } else if (arg == "--tls") {
+                use_tls = true;
+            }
                 std::cout << "Usage: " << argv[0] << " [options]\n"
                           << "Options:\n"
                           << "  -h, --host HOST     Server host (default: 127.0.0.1)\n"
@@ -54,6 +58,11 @@ int main(int argc, char* argv[]) {
         printBanner();
         
         // Create client
+        
+        // Enable TLS if requested
+        if (use_tls) {
+            client.enableTLS();
+        }
         Client client(host, port);
         
         // Connect to server

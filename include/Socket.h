@@ -1,4 +1,6 @@
 #ifndef SOCKET_H
+#include <openssl/ssl.h>
+#include <openssl/err.h>
 #define SOCKET_H
 
 #include <string>
@@ -10,6 +12,9 @@
 
 class Socket {
 private:
+    SSL_CTX* ctx_;  // TLS context
+    SSL* ssl_;      // SSL connection
+    bool use_tls_;  // Whether to use TLS
     int fd_;  // Socket file descriptor
     
 public:
@@ -66,6 +71,12 @@ public:
     // Set socket options
     void setReuseAddr(bool reuse);
     void setNonBlocking(bool nonblocking);
+    
+    // TLS/SSL support
+    void enableTLS(bool is_server);
+    void loadCertificates(const std::string& cert_file, const std::string& key_file);
+    void handshake();
+    bool isTLS() const { return use_tls_; }
 };
 
 #endif // SOCKET_H
