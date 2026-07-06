@@ -2,7 +2,36 @@
 title: Installation
 description: Prepare a Linux environment and build the server, client, and user-management utility.
 icon: Download
+date: 2026-07-07
 ---
+
+<JsonLd
+  data={{
+    '@type': 'HowTo',
+    name: 'Install Easy RSH',
+    description: 'Install dependencies and build the Easy RSH remote command system.',
+    step: [
+      {
+        '@type': 'HowToStep',
+        position: 1,
+        name: 'Install dependencies',
+        text: 'Install build-essential, libssl-dev, and make on Ubuntu/Debian, or the equivalent packages for your distribution.',
+      },
+      {
+        '@type': 'HowToStep',
+        position: 2,
+        name: 'Build the project',
+        text: 'Run make from the repository root to compile the server, client, and adduser binaries.',
+      },
+      {
+        '@type': 'HowToStep',
+        position: 3,
+        name: 'Verify the output',
+        text: 'Confirm the server, client, and adduser binaries exist in the repository root.',
+      },
+    ],
+  }}
+/>
 
 ## Platform support
 

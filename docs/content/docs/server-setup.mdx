@@ -2,7 +2,54 @@
 title: Server Setup
 description: Configure the administrator, listening port, execution mode, and multi-client behavior.
 icon: Settings2
+date: 2026-07-07
 ---
+
+<JsonLd
+  data={{
+    '@type': 'HowTo',
+    name: 'Set Up Easy RSH Server',
+    description: 'Configure the Easy RSH server with administrator credentials, port, and execution mode.',
+    step: [
+      {
+        '@type': 'HowToStep',
+        position: 1,
+        name: 'Start the server',
+        text: 'Run ./server without arguments to launch the interactive setup wizard.',
+      },
+      {
+        '@type': 'HowToStep',
+        position: 2,
+        name: 'Create administrator account',
+        text: 'Choose a username and password. The username defaults to admin.',
+      },
+      {
+        '@type': 'HowToStep',
+        position: 3,
+        name: 'Set listening port',
+        text: 'Choose a TCP port. The default is 8080.',
+      },
+      {
+        '@type': 'HowToStep',
+        position: 4,
+        name: 'Choose server mode',
+        text: 'Select command mode for shell execution or echo mode for message echoing.',
+      },
+      {
+        '@type': 'HowToStep',
+        position: 5,
+        name: 'Configure client handling',
+        text: 'Choose fork mode for multi-client support or single-client mode.',
+      },
+      {
+        '@type': 'HowToStep',
+        position: 6,
+        name: 'Save configuration',
+        text: 'Persist the setup to data/server.conf and data/users.txt.',
+      },
+    ],
+  }}
+/>
 
 ## First run
 

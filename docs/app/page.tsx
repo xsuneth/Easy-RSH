@@ -9,6 +9,7 @@ import {
 import Link from 'next/link';
 import { Brand } from '@/components/brand';
 import { TerminalPreview } from '@/components/terminal-preview';
+import { JsonLd } from '@/components/json-ld';
 
 function GitHubIcon({ size = 18 }: { size?: number }) {
   return (
@@ -48,6 +49,27 @@ const features = [
 export default function HomePage() {
   return (
     <main className="landing">
+      <JsonLd
+        data={{
+          '@type': 'SoftwareApplication',
+          name: 'Easy RSH',
+          applicationCategory: 'DeveloperApplication',
+          operatingSystem: 'Linux, POSIX',
+          description:
+            'A compact C++17 remote command system that makes sockets, process management, authentication, and IPC easy to see and understand.',
+          url: 'https://github.com/xsuneth/Easy-RSH',
+          softwareVersion: '1.1.0',
+          offers: {
+            '@type': 'Offer',
+            price: '0',
+            priceCurrency: 'USD',
+          },
+          author: {
+            '@type': 'Person',
+            name: 'Suneth Chathuranga',
+          },
+        }}
+      />
       <nav className="landing-nav">
         <Brand />
         <div className="nav-links">
