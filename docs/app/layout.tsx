@@ -2,6 +2,7 @@ import '@fontsource-variable/space-grotesk';
 import '@fontsource/ibm-plex-mono/400.css';
 import '@fontsource/ibm-plex-mono/500.css';
 import './global.css';
+import { Analytics } from "@vercel/analytics/next"
 
 import { RootProvider } from 'fumadocs-ui/provider/next';
 import type { Metadata } from 'next';
@@ -20,7 +21,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
-        <RootProvider theme={{ defaultTheme: 'dark' }}>{children}</RootProvider>
+        <RootProvider theme={{ defaultTheme: 'dark' }}>{children}</RootProvider>\
+        <Analytics/>
       </body>
     </html>
   );
