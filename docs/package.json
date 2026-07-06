@@ -1,0 +1,33 @@
+{
+  "name": "easy-rsh-docs",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "@fontsource-variable/space-grotesk": "^5.2.8",
+    "@fontsource/ibm-plex-mono": "^5.2.6",
+    "@orama/orama": "^3.1.18",
+    "fumadocs-core": "16.10.7",
+    "fumadocs-mdx": "15.0.13",
+    "fumadocs-ui": "16.10.7",
+    "lucide-react": "1.23.0",
+    "mermaid": "^11.16.0",
+    "next": "16.2.10",
+    "react": "19.2.7",
+    "react-dom": "19.2.7"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.18",
+    "@types/mdx": "^2.0.13",
+    "@types/node": "^24.10.0",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "caniuse-lite": "^1.0.30001802",
+    "tailwindcss": "^4.1.18",
+    "typescript": "^5.9.3"
+  }
+}

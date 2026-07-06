@@ -1,0 +1,65 @@
+---
+title: Security
+description: Understand what Easy RSH protects today and what remains unsafe for untrusted networks.
+icon: ShieldCheck
+---
+
+## Current protections
+
+### Salted password records
+
+Passwords are not written directly to disk. Each user record has the form:
+
+```text
+username:salt:sha256(salt + password)
+```
+
+The salt is generated with OpenSSL `RAND_bytes`, which prevents identical passwords from producing identical stored values.
+
+### Random session tokens
+
+After successful authentication, the server generates a random token and records an in-memory session. Tokens are checked before protected command handling continues.
+
+### Process isolation
+
+Fork mode gives each connected client a separate address space and working directory. A failure in one handler does not directly overwrite another handler's memory.
+
+## Important limitations
+
+> Easy RSH is an educational remote shell, not a hardened replacement for SSH. Do not expose it directly to the public internet.
+
+### No transport encryption
+
+The project uses OpenSSL for hashing and random bytes, but the TCP connection itself is not wrapped in TLS. Credentials, tokens, commands, and output can be observed or modified by anyone able to intercept the traffic.
+
+### Fast password hashing
+
+Salted SHA-256 is better than plaintext storage, but it is intentionally fast and therefore weaker against offline password guessing than Argon2id, scrypt, bcrypt, or PBKDF2.
+
+### Unrestricted command execution
+
+Authenticated users can launch executables using the server process's operating-system privileges. There is no command allowlist, filesystem jail, resource limit, or privilege drop.
+
+### Missing abuse controls
+
+The server does not currently provide rate limiting, account lockout, comprehensive audit logs, or multi-factor authentication.
+
+## Safer development use
+
+- Bind and connect only over localhost or a trusted private network.
+- Run the server as a dedicated unprivileged operating-system user.
+- Use strong, unique passwords even in development.
+- Restrict access with host firewall rules.
+- Never run the server as `root`.
+- Prefer SSH port forwarding or a private tunnel when testing across machines.
+
+## Hardening roadmap
+
+For any serious deployment, prioritize these changes:
+
+1. Add authenticated TLS around all protocol traffic.
+2. Replace SHA-256 password storage with a memory-hard password KDF.
+3. Drop privileges and isolate command execution in a sandbox.
+4. Add command policy, timeouts, and CPU/memory limits.
+5. Add rate limiting and structured audit logging.
+6. Define a length-prefixed protocol with explicit message types.

@@ -1,0 +1,81 @@
+---
+title: Server Setup
+description: Configure the administrator, listening port, execution mode, and multi-client behavior.
+icon: Settings2
+---
+
+## First run
+
+Start the server without arguments:
+
+```bash
+./server
+```
+
+When no completed configuration exists, Easy RSH opens its setup wizard. The wizard walks through five decisions.
+
+### 1. Administrator account
+
+Choose the initial username and password. The username defaults to `admin`; the password is hidden while typing and must be confirmed.
+
+### 2. Listening port
+
+Choose a TCP port. The default is `8080`, and the wizard checks whether it can be used before continuing.
+
+### 3. Server mode
+
+- **Command mode** executes shell commands and returns their output.
+- **Echo mode** returns received messages without executing them.
+
+### 4. Client handling
+
+- **Fork mode** creates a child process for each accepted client.
+- **Single-client mode** handles one connected client in the server process.
+
+### 5. Persistence
+
+Saving the setup writes configuration to `data/server.conf`. User records are stored in `data/users.txt` as `username:salt:hash`.
+
+## Reconfigure the server
+
+Run the wizard again at any time:
+
+```bash
+./server --reconfigure
+```
+
+## Override saved values
+
+Runtime flags take precedence over the saved configuration:
+
+```bash
+./server --port 9000 --command --fork
+```
+
+| Option | Purpose |
+| --- | --- |
+| `-p, --port PORT` | Override the listening port |
+| `-c, --command` | Enable command execution mode |
+| `-f, --fork` | Enable fork-based client handling |
+| `--reconfigure` | Run the setup wizard again |
+| `-h, --help` | Print usage information |
+
+## Add another user
+
+The dedicated utility writes another salted credential record:
+
+```bash
+./adduser alice 'choose-a-strong-password'
+```
+
+Treat `data/users.txt` and `data/server.conf` as server-side state. Do not publish them or copy them into client machines.
+
+## Restart from a client
+
+An authenticated command session recognizes `remoot` as a server restart request. The current server loop exits and starts again using the current configuration.
+
+```text
+remote> remoot
+```
+
+Use this carefully: active client processes are not a substitute for a supervised service manager.

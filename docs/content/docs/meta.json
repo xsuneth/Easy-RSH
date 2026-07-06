@@ -1,0 +1,12 @@
+{
+  "title": "Easy RSH",
+  "pages": [
+    "index",
+    "installation",
+    "server-setup",
+    "client-usage",
+    "architecture",
+    "security",
+    "cli-reference"
+  ]
+}

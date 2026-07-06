@@ -1,0 +1,119 @@
+---
+title: Architecture
+description: Follow authentication and command execution across sockets, processes, pipes, and modules.
+icon: Network
+---
+
+## System shape
+
+Easy RSH separates network ownership, authentication, process execution, and configuration into small C++ classes.
+
+```mermaid
+flowchart TB
+  Client[Client] -->|TCP socket| Server[Server parent]
+  Server --> Auth[Auth and sessions]
+  Auth --> Users[(data/users.txt)]
+  Server -->|fork per client| Handler[Client handler]
+  Handler -->|pipe and fork| Child[Command child]
+  Child -->|execvp| Command[OS command]
+  Command -->|stdout and stderr| Handler
+```
+
+## Main components
+
+| Component | Responsibility |
+| --- | --- |
+| `Socket` | Move-only RAII wrapper around a POSIX socket descriptor |
+| `Server` | Bind, listen, accept, authenticate, and route client messages |
+| `Client` | Connect, complete login, and run the interactive prompt |
+| `Auth` | Store salted hashes, verify credentials, and issue session tokens |
+| `CommandExecutor` | Parse arguments, fork, execute, and capture output through a pipe |
+| `Config` | Read and write the key-value server configuration |
+| `SetupWizard` | Collect and validate first-run settings |
+
+## Authentication flow
+
+```mermaid
+sequenceDiagram
+  actor Client
+  participant Server
+  participant Auth
+  participant Users as users.txt
+
+  Client->>Server: TCP connect
+  Server-->>Client: AUTH_REQUIRED
+  Client->>Server: AUTH username:password
+  Server->>Auth: authenticate credentials
+  Auth->>Users: Load salt and hash
+  Users-->>Auth: Stored user record
+  Auth->>Auth: SHA-256(salt + password)
+  Auth-->>Server: Valid result and session token
+  Server-->>Client: AUTH_SUCCESS token
+  Client->>Server: Authenticated commands
+```
+
+The server loads the stored salt for the user, calculates SHA-256 over `salt + password`, and compares the result with the persisted hash. On success, `RAND_bytes` provides entropy for a new session token.
+
+## Command execution flow
+
+```mermaid
+sequenceDiagram
+  participant Client
+  participant Handler as Server handler
+  participant Executor as CommandExecutor
+  participant Child as Command child
+
+  Client->>Handler: Send command
+  alt Built-in command
+    Handler->>Handler: Handle cd, pwd, or remoot
+    Handler-->>Client: Built-in response
+  else External command
+    Handler->>Executor: execute(command)
+    Executor->>Executor: Create pipe
+    Executor->>Child: fork()
+    Child->>Child: Redirect stdout and stderr
+    Child->>Child: execvp(command, argv)
+    Child-->>Executor: Output through pipe
+    Executor->>Executor: waitpid(child)
+    Executor-->>Handler: Captured output
+    Handler-->>Client: Command response
+  end
+```
+
+Built-ins stay in the client handler because operations such as `chdir` must modify the long-lived session process. External commands are isolated in short-lived children.
+
+## Multi-client model
+
+With `--fork`, the listening server forks once per accepted client. The parent closes its copy of the client socket and immediately returns to `accept`. The child closes its copy of the listening socket and owns the connection until the session ends.
+
+```mermaid
+flowchart TB
+  ClientA[Client A] --> Parent[Server parent]
+  ClientB[Client B] --> Parent
+  ClientN[Client N] --> Parent
+
+  Parent -->|fork| HandlerA[Handler A]
+  Parent -->|fork| HandlerB[Handler B]
+  Parent -->|fork| HandlerN[Handler N]
+
+  HandlerA --> CommandA[Command children]
+  HandlerB --> CommandB[Command children]
+  HandlerN --> CommandN[Command children]
+
+  HandlerA -. exits .-> Signal[SIGCHLD handler]
+  HandlerB -. exits .-> Signal
+  HandlerN -. exits .-> Signal
+  Signal -->|waitpid WNOHANG| Parent
+```
+
+A `SIGCHLD` handler repeatedly calls `waitpid(..., WNOHANG)` to reap completed client processes and prevent zombies.
+
+## State boundaries
+
+- The parent owns the listening socket and restart loop.
+- A forked handler owns one client connection and its current working directory.
+- Command children are short lived and return output through a pipe.
+- Session tokens are memory-only and disappear when the relevant process exits.
+- Configuration and user hashes persist under `data/`.
+
+This model favors readability and process isolation over maximum connection density. It is a good fit for demonstrating operating-system concepts, but it is not intended to compete with event-driven production SSH servers.

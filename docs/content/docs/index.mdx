@@ -1,0 +1,88 @@
+---
+title: Quick Start
+description: Build Easy RSH, configure the server, and open your first remote shell session.
+icon: Rocket
+---
+
+Easy RSH is a compact C++17 remote command system built to make sockets, process management, authentication, and IPC easy to see and understand.
+
+<div className="doc-intro-grid">
+  <div className="doc-intro-card">
+    <strong>SERVER</strong>
+    <span>Authenticates clients, accepts commands, and manages concurrent sessions.</span>
+  </div>
+  <div className="doc-intro-card">
+    <strong>CLIENT</strong>
+    <span>Connects to a host and exposes a small interactive remote shell.</span>
+  </div>
+  <div className="doc-intro-card">
+    <strong>ADDUSER</strong>
+    <span>Creates salted password records in the local user database.</span>
+  </div>
+</div>
+
+## Requirements
+
+Easy RSH targets Linux and other POSIX-like systems. You need:
+
+- A C++17 compiler such as `g++`
+- GNU Make
+- OpenSSL development headers and libraries
+- A terminal for the server and another for the client
+
+On Ubuntu or Debian:
+
+```bash
+sudo apt update
+sudo apt install build-essential libssl-dev make
+```
+
+## Build the project
+
+From the repository root, compile all three binaries:
+
+```bash
+make
+```
+
+For an optimized release build:
+
+```bash
+make DEBUG=0
+```
+
+## Start the server
+
+The first run opens an interactive setup wizard. It creates the initial administrator, checks the port, and records the selected server mode.
+
+```bash
+./server
+```
+
+The default configuration listens on port `8080`, enables command execution, and can use fork-based multi-client handling.
+
+## Connect a client
+
+Open another terminal and connect using the address printed by the server:
+
+```bash
+./client 127.0.0.1 8080
+```
+
+Enter the administrator credentials created by the setup wizard. After authentication, commands are executed from the server's current working directory.
+
+```text
+remote> pwd
+/home/user/Easy-RSH
+
+remote> uname -a
+Linux server 6.x ...
+```
+
+> Easy RSH currently uses plaintext TCP. Use it only on trusted networks or inside an appropriately secured environment. See [Security](/docs/security) before exposing a server beyond your machine.
+
+## Where to go next
+
+- [Installation](/docs/installation) explains build targets and dependencies.
+- [Server setup](/docs/server-setup) covers the wizard and runtime options.
+- [Architecture](/docs/architecture) follows a command from socket to child process.
