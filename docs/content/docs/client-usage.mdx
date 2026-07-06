@@ -1,0 +1,79 @@
+---
+title: Client Usage
+description: Connect, authenticate, navigate directories, and execute commands from the interactive client.
+icon: Plug
+---
+
+## Connect
+
+Pass the server host and port to the client:
+
+```bash
+./client 10.255.255.254 8080
+```
+
+For a server running on the same machine:
+
+```bash
+./client 127.0.0.1 8080
+```
+
+The client opens a TCP connection and waits for the server's authentication challenge.
+
+## Authenticate
+
+Enter a username and password already present in `data/users.txt` on the server. A successful login returns a random session token, which the client keeps for the connection.
+
+```text
+Enter username: admin
+Enter password: ********
+Authentication successful!
+remote>
+```
+
+Authentication failure closes the session. Confirm the username, recreate the user if necessary, and reconnect.
+
+## Execute commands
+
+Commands are parsed by the server and launched with `execvp`. Standard output and standard error are captured through a pipe and sent back to the client.
+
+```text
+remote> whoami
+devuser
+
+remote> ls -la
+total 212
+drwxr-xr-x ...
+```
+
+## Navigate directories
+
+`cd` is handled directly by the server because changing directory in a short-lived command child would not affect later commands.
+
+```text
+remote> pwd
+/home/dev/Easy-RSH
+
+remote> cd /tmp
+Changed directory to: /tmp
+
+remote> pwd
+/tmp
+```
+
+The working directory belongs to the server-side client handler. In fork mode, each connected client receives its own process state.
+
+## End a session
+
+Enter `exit` to leave the interactive client, or use the normal terminal interrupt if the server is unavailable.
+
+```text
+remote> exit
+```
+
+## Practical limits
+
+- The protocol uses fixed-size receive buffers rather than a framed streaming protocol.
+- Shell operators such as pipes and redirects are not interpreted by a shell when commands are launched directly with `execvp`.
+- Commands run with the operating-system privileges of the server process.
+- Traffic, including credentials and command output, is not TLS encrypted.

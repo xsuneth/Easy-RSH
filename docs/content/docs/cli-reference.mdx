@@ -1,0 +1,82 @@
+---
+title: CLI Reference
+description: A concise reference for build commands, server flags, client invocation, and session commands.
+icon: SquareTerminal
+---
+
+## Server
+
+```bash
+./server [options]
+```
+
+| Flag | Description |
+| --- | --- |
+| `-p, --port PORT` | Listen on `PORT` instead of the saved value |
+| `-c, --command` | Enable remote command execution |
+| `-f, --fork` | Fork a handler process for each client |
+| `--reconfigure` | Run the interactive setup wizard |
+| `-h, --help` | Display usage and exit |
+
+Examples:
+
+```bash
+./server
+./server --port 9000
+./server --port 9000 --command --fork
+./server --reconfigure
+```
+
+## Client
+
+```bash
+./client [host] [port]
+```
+
+Examples:
+
+```bash
+./client 127.0.0.1 8080
+./client 10.0.0.25 9000
+```
+
+## User utility
+
+```bash
+./adduser <username> <password>
+```
+
+Example:
+
+```bash
+./adduser admin 'a-strong-local-password'
+```
+
+## Interactive commands
+
+| Command | Behavior |
+| --- | --- |
+| `pwd` | Return the server-side working directory |
+| `cd <path>` | Change the handler's working directory |
+| `remoot` | Request a restart of the server loop |
+| `exit` | End the client session |
+| Any other command | Parse arguments and execute with `execvp` |
+
+## Build commands
+
+| Command | Behavior |
+| --- | --- |
+| `make` | Build all binaries in debug mode |
+| `make DEBUG=0` | Build all binaries with release optimization |
+| `make server` | Build the server only |
+| `make client` | Build the client only |
+| `make adduser` | Build the user utility only |
+| `make clean all` | Remove build output and rebuild |
+
+## Files created at runtime
+
+| Path | Contents |
+| --- | --- |
+| `data/server.conf` | Saved port and mode settings |
+| `data/users.txt` | Username, salt, and password hash records |
+| `build/*.o` | Intermediate compiler output |

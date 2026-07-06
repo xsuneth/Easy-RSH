@@ -1,0 +1,71 @@
+---
+title: Installation
+description: Prepare a Linux environment and build the server, client, and user-management utility.
+icon: Download
+---
+
+## Platform support
+
+Easy RSH relies on POSIX APIs including `fork`, `execvp`, `pipe`, `chdir`, `waitpid`, signals, and BSD sockets. Linux is the primary supported environment. On Windows, use WSL or a Linux virtual machine rather than compiling the project as a native Win32 application.
+
+## Install dependencies
+
+### Ubuntu and Debian
+
+```bash
+sudo apt update
+sudo apt install build-essential libssl-dev make
+```
+
+### Fedora
+
+```bash
+sudo dnf install gcc-c++ make openssl-devel
+```
+
+### Arch Linux
+
+```bash
+sudo pacman -S base-devel openssl
+```
+
+## Build targets
+
+The root `Makefile` compiles with C++17 and links against pthread, SSL, and crypto.
+
+| Command | Result |
+| --- | --- |
+| `make` | Builds `server`, `client`, and `adduser` |
+| `make server` | Builds only the server |
+| `make client` | Builds only the client |
+| `make adduser` | Builds only the user utility |
+| `make DEBUG=0` | Enables optimized release flags |
+| `make clean` | Removes compiled objects and primary binaries |
+
+The default development build uses `-g -O0 -DDEBUG`. Release builds use `-O3 -DNDEBUG`.
+
+## Verify the output
+
+After a successful build, the repository root contains:
+
+```text
+./server
+./client
+./adduser
+```
+
+Display the server's options before configuring a live instance:
+
+```bash
+./server --help
+```
+
+## Rebuild after changes
+
+For a clean development rebuild:
+
+```bash
+make clean all
+```
+
+Object files are placed under `build/`. The source tree remains split into `src/server`, `src/client`, and `src/socket` with public interfaces under `include/`.
