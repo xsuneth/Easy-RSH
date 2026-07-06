@@ -21,8 +21,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
-        <RootProvider theme={{ defaultTheme: 'dark' }}>{children}</RootProvider>\
-        <Analytics/>
+        <RootProvider theme={{ defaultTheme: 'dark' }}>{children}</RootProvider>
+        <Analytics />
       </body>
     </html>
   );
