@@ -1,4 +1,5 @@
 import { getMDXComponents } from '@/components/mdx';
+import { DocsOpenInActions } from '@/components/docs-open-in-actions';
 import { source } from '@/lib/source';
 import { JsonLd } from '@/components/json-ld';
 import {
@@ -22,6 +23,11 @@ export default async function Page(props: {
   const MDX = page.data.body;
   const pageDate = (page.data as { date?: string }).date;
   const pageUrl = `${baseUrl}${page.url}`;
+  const markdownPath = params.slug?.length
+    ? `${params.slug.join('/')}.mdx`
+    : 'index.mdx';
+  const markdownUrl =
+    `https://github.com/xsuneth/Easy-RSH/blob/main/docs/content/docs/${markdownPath}`;
 
   return (
     <DocsPage toc={page.data.toc}>
@@ -68,6 +74,13 @@ export default async function Page(props: {
           ],
         }}
       />
+      <div className="docs-page-actions-row">
+        <DocsOpenInActions
+          markdownUrl={markdownUrl}
+          pageTitle={page.data.title}
+          pageUrl={pageUrl}
+        />
+      </div>
       <DocsTitle>{page.data.title}</DocsTitle>
       {page.data.description && (
         <DocsDescription>{page.data.description}</DocsDescription>
