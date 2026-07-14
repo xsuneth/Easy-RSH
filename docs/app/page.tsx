@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { Brand } from '@/components/brand';
+import { FAQAccordion } from '@/components/faq-accordion';
 import { TerminalPreview } from '@/components/terminal-preview';
 import { JsonLd } from '@/components/json-ld';
 
@@ -46,6 +47,34 @@ const features = [
   },
 ];
 
+const faqItems = [
+  {
+    question: 'What is Easy RSH?',
+    answer:
+      'Easy RSH is a compact C++17 remote shell project that demonstrates command execution, sockets, authentication, and process management in a readable client-server codebase.',
+  },
+  {
+    question: 'How does Easy RSH authenticate users?',
+    answer:
+      'Easy RSH stores salted SHA-256 password records and uses OpenSSL-backed randomness for session tokens after login.',
+  },
+  {
+    question: 'What platforms does Easy RSH support?',
+    answer:
+      'Easy RSH targets Linux and other POSIX-style environments because it relies on APIs such as fork, execvp, pipe, signals, and BSD sockets.',
+  },
+  {
+    question: 'Can Easy RSH handle multiple clients?',
+    answer:
+      'Yes. The server can run in a fork-per-client mode so each accepted client session is handled in its own child process.',
+  },
+  {
+    question: 'Is Easy RSH safe for untrusted networks?',
+    answer:
+      'No. It has authenticated access controls, but it should be treated as an educational or controlled-environment project rather than a hardened remote administration service for hostile networks.',
+  },
+];
+
 export default function HomePage() {
   return (
     <main className="landing">
@@ -71,6 +100,19 @@ export default function HomePage() {
             '@type': 'Person',
             name: 'Suneth Chathuranga',
           },
+        }}
+      />
+      <JsonLd
+        data={{
+          '@type': 'FAQPage',
+          mainEntity: faqItems.map(({ question, answer }) => ({
+            '@type': 'Question',
+            name: question,
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: answer,
+            },
+          })),
         }}
       />
       <nav className="landing-nav">
@@ -169,6 +211,21 @@ export default function HomePage() {
         <Link className="primary-button" href="/docs/installation">
           Start building <ArrowRight size={18} />
         </Link>
+      </section>
+
+      <section className="faq-section" aria-labelledby="faq-heading">
+        <div className="faq-shell">
+          <div className="faq-intro">
+            <span className="section-kicker">COMMON QUESTIONS</span>
+            <h2 id="faq-heading">Frequently asked questions</h2>
+            <p>
+              Quick answers for developers evaluating how Easy RSH works, where it
+              runs, and what security assumptions it makes.
+            </p>
+          </div>
+
+          <FAQAccordion items={faqItems} />
+        </div>
       </section>
 
       <footer className="landing-footer">
