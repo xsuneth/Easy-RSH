@@ -21,6 +21,7 @@ export default async function Page(props: {
 
   const MDX = page.data.body;
   const pageDate = (page.data as { date?: string }).date;
+  const pageUrl = `${baseUrl}${page.url}`;
 
   return (
     <DocsPage toc={page.data.toc}>
@@ -29,8 +30,42 @@ export default async function Page(props: {
           '@type': 'TechArticle',
           headline: page.data.title,
           description: page.data.description,
-          url: `${baseUrl}${page.url}`,
-          ...(pageDate && { datePublished: pageDate }),
+          url: pageUrl,
+          mainEntityOfPage: pageUrl,
+          author: {
+            '@type': 'Person',
+            name: 'Suneth Chathuranga',
+            url: 'https://github.com/xsuneth',
+          },
+          publisher: {
+            '@type': 'Person',
+            name: 'Suneth Chathuranga',
+            url: 'https://github.com/xsuneth',
+          },
+          ...(pageDate && {
+            datePublished: pageDate,
+            dateModified: pageDate,
+          }),
+        }}
+      />
+      <JsonLd
+        data={{
+          '@type': 'BreadcrumbList',
+          itemListElement: [
+            { '@type': 'ListItem', position: 1, name: 'Home', item: baseUrl },
+            {
+              '@type': 'ListItem',
+              position: 2,
+              name: 'Documentation',
+              item: `${baseUrl}/docs`,
+            },
+            {
+              '@type': 'ListItem',
+              position: 3,
+              name: page.data.title,
+              item: pageUrl,
+            },
+          ],
         }}
       />
       <DocsTitle>{page.data.title}</DocsTitle>
@@ -54,6 +89,7 @@ export async function generateMetadata(props: {
   const params = await props.params;
   const page = source.getPage(params.slug);
   if (!page) notFound();
+  const pageDate = (page.data as { date?: string }).date;
 
   return {
     title: page.data.title,
@@ -66,11 +102,17 @@ export async function generateMetadata(props: {
       description: page.data.description,
       url: `${baseUrl}${page.url}`,
       type: 'article',
+      images: '/opengraph-image',
+      ...(pageDate && {
+        publishedTime: pageDate,
+        modifiedTime: pageDate,
+      }),
     },
     twitter: {
       card: 'summary_large_image',
       title: page.data.title,
       description: page.data.description,
+      images: '/opengraph-image',
     },
   };
 }

@@ -11,13 +11,30 @@ import { JsonLd } from '@/components/json-ld';
 const baseUrl = 'https://easy-rsh.vercel.app';
 
 export const metadata: Metadata = {
+  metadataBase: new URL(baseUrl),
   title: {
     default: 'Easy RSH — Remote shell, made legible',
     template: '%s | Easy RSH',
   },
   description:
     'Documentation for Easy RSH, a compact C++17 remote command server with OpenSSL authentication.',
-  metadataBase: new URL(baseUrl),
+  applicationName: 'Easy RSH',
+  generator: 'Next.js',
+  keywords: [
+    'remote shell',
+    'C++17',
+    'OpenSSL',
+    'remote command execution',
+    'POSIX',
+    'client-server',
+    'documentation',
+  ],
+  authors: [{ name: 'Suneth Chathuranga', url: 'https://github.com/xsuneth' }],
+  creator: 'Suneth Chathuranga',
+  publisher: 'Suneth Chathuranga',
+  alternates: {
+    canonical: baseUrl,
+  },
   openGraph: {
     title: 'Easy RSH — Remote shell, made legible',
     description:
@@ -26,12 +43,14 @@ export const metadata: Metadata = {
     siteName: 'Easy RSH',
     locale: 'en_US',
     type: 'website',
+    images: '/opengraph-image',
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Easy RSH — Remote shell, made legible',
     description:
       'Documentation for Easy RSH, a compact C++17 remote command server with OpenSSL authentication.',
+    images: '/opengraph-image',
   },
 };
 
@@ -43,11 +62,16 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           data={{
             '@type': 'WebSite',
             name: 'Easy RSH',
+            alternateName: 'Easy Remote Shell',
             url: baseUrl,
             description:
-              'A compact C++17 remote command system that makes sockets, process management, authentication, and IPC easy to see and understand.',
-            applicationCategory: 'DeveloperApplication',
-            operatingSystem: 'Linux, POSIX',
+              'Documentation for Easy RSH, a compact C++17 remote command server with OpenSSL authentication.',
+            about: {
+              '@type': 'SoftwareApplication',
+              name: 'Easy RSH',
+              applicationCategory: 'DeveloperApplication',
+              operatingSystem: 'Linux, POSIX',
+            },
           }}
         />
         <RootProvider theme={{ defaultTheme: 'dark' }}>{children}</RootProvider>

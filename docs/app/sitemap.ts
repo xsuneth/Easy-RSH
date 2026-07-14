@@ -8,7 +8,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   const docEntries: MetadataRoute.Sitemap = pages.map((page) => ({
     url: `${baseUrl}${page.url}`,
-    lastModified: new Date(),
+    lastModified: (page.data as { date?: string }).date ?? undefined,
     changeFrequency: 'weekly',
     priority: 0.8,
   }));
@@ -16,7 +16,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
   return [
     {
       url: baseUrl,
-      lastModified: new Date(),
       changeFrequency: 'monthly',
       priority: 1,
     },

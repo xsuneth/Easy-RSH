@@ -57,8 +57,11 @@ export default function HomePage() {
           operatingSystem: 'Linux, POSIX',
           description:
             'A compact C++17 remote command system that makes sockets, process management, authentication, and IPC easy to see and understand.',
-          url: 'https://github.com/xsuneth/Easy-RSH',
+          url: 'https://easy-rsh.vercel.app',
           softwareVersion: '1.1.0',
+          sameAs: ['https://github.com/xsuneth/Easy-RSH'],
+          codeRepository: 'https://github.com/xsuneth/Easy-RSH',
+          mainEntityOfPage: 'https://easy-rsh.vercel.app',
           offers: {
             '@type': 'Offer',
             price: '0',
