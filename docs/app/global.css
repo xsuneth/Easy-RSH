@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+@import url('https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap');
 @import 'tailwindcss';
 @import 'fumadocs-ui/css/neutral.css';
 @import 'fumadocs-ui/css/preset.css';
@@ -22,6 +24,8 @@
 }
 
 :root {
+  --font-body: 'Inter';
+  --font-display: 'General Sans', 'Inter', sans-serif;
   --ink: #f6f4fb;
   --ink-raised: #ffffff;
   --paper: #1c1526;
@@ -88,7 +92,7 @@ body {
   margin: 0;
   background: var(--ink);
   color: var(--paper);
-  font-family: 'Space Grotesk Variable', sans-serif;
+  font-family: var(--font-body), sans-serif;
 }
 
 ::selection {
@@ -375,7 +379,7 @@ pre,
   justify-content: center;
   gap: 19px;
   color: var(--purple);
-  font-family: 'Space Grotesk Variable', sans-serif;
+  font-family: var(--font-display), sans-serif;
   font-size: clamp(50px, 5vw, 70px);
   font-weight: 720;
   letter-spacing: -0.08em;
@@ -693,7 +697,7 @@ pre,
 }
 
 #nd-page {
-  font-family: 'Space Grotesk Variable', sans-serif;
+  font-family: var(--font-body), sans-serif;
 }
 
 .docs-page-actions-row {
@@ -780,6 +784,7 @@ pre,
 .prose h1,
 .prose h2,
 .prose h3 {
+  font-family: var(--font-display), sans-serif;
   letter-spacing: -0.035em;
 }
 

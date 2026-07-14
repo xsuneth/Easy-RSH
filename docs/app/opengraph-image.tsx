@@ -16,7 +16,7 @@ export default function Image() {
           justifyContent: 'center',
           background: '#17191b',
           color: '#f2eff7',
-          fontFamily: '"Space Grotesk", sans-serif',
+          fontFamily: '"General Sans", Inter, sans-serif',
         }}
       >
         <div
