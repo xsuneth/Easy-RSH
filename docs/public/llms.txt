@@ -1,0 +1,22 @@
+Easy RSH
+
+Easy RSH is a compact C++17 remote shell project focused on readable systems code.
+It demonstrates POSIX sockets, authenticated client-server sessions, command execution,
+fork-per-client concurrency, and process management in a small codebase.
+
+Primary site: https://easy-rsh.vercel.app/
+Repository: https://github.com/xsuneth/Easy-RSH
+
+Main documentation:
+- Quick start: https://easy-rsh.vercel.app/docs
+- Installation: https://easy-rsh.vercel.app/docs/installation
+- Server setup: https://easy-rsh.vercel.app/docs/server-setup
+- Client usage: https://easy-rsh.vercel.app/docs/client-usage
+- Architecture: https://easy-rsh.vercel.app/docs/architecture
+- Security: https://easy-rsh.vercel.app/docs/security
+- CLI reference: https://easy-rsh.vercel.app/docs/cli-reference
+
+Notes:
+- Intended for Linux and POSIX-style environments.
+- Uses salted SHA-256 credentials and OpenSSL-backed randomness.
+- Not positioned as a hardened remote administration service for hostile networks.
